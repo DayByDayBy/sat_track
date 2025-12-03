@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from . import orbits, scheduler, state
+from .routes import satellites, passes, groundtrack
 
 
 LOGGER = logging.getLogger(__name__)
@@ -27,6 +28,10 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+app.include_router(satellites.router)
+app.include_router(passes.router)
+app.include_router(groundtrack.router)
 
 
 @app.get("/health")

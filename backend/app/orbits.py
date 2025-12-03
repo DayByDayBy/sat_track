@@ -76,6 +76,85 @@ def compute_all_subpoints(t=None) -> Dict[str, dict[str, float]]:
     return results
 
 
+def compute_passes_for_observer(
+    sat: EarthSatellite,
+    lat_deg: float,
+    lon_deg: float,
+    hours: float = 24.0,
+    min_elevation_deg: float = 0.0,
+) -> list[dict[str, float | str]]:
+    """Compute rise/culmination/set passes for *sat* over the next *hours*.
+
+    Returns a list of dicts with ISO8601 timestamps and max elevation in degrees.
+    """
+    observer = wgs84.latlon(latitude_degrees=lat_deg, longitude_degrees=lon_deg, elevation_m=0.0)
+
+    t0 = TS.now()
+    t1 = t0 + hours / 24.0
+
+    times, events = sat.find_events(observer, t0, t1, altitude_degrees=min_elevation_deg)
+
+    passes: list[dict[str, float | str]] = []
+    current_start = None
+    current_peak = None
+
+    for t, event in zip(times, events):
+        if event == 0:  # rise
+            current_start = t
+            current_peak = None
+        elif event == 1 and current_start is not None:  # culminate
+            current_peak = t
+        elif event == 2 and current_start is not None and current_peak is not None:  # set
+            # Compute elevation at peak
+            difference = sat - observer
+            topocentric = difference.at(current_peak)
+            alt, az, distance = topocentric.altaz()
+            max_elev = float(alt.degrees)
+
+            passes.append(
+                {
+                    "start": current_start.utc_datetime().isoformat(),
+                    "peak": current_peak.utc_datetime().isoformat(),
+                    "end": t.utc_datetime().isoformat(),
+                    "max_elevation_deg": max_elev,
+                },
+            )
+
+            current_start = None
+            current_peak = None
+
+    return passes
+
+
+def compute_groundtrack(
+    sat: EarthSatellite,
+    hours: float = 1.0,
+    samples: int = 60,
+) -> list[dict[str, float | str]]:
+    """Sample the satellite subpoint over the next *hours* at *samples* intervals."""
+    if samples < 2:
+        raise ValueError("samples must be >= 2")
+
+    t0 = TS.now()
+    track: list[dict[str, float | str]] = []
+
+    for i in range(samples):
+        fraction = i / (samples - 1)
+        t = t0 + (hours / 24.0) * fraction
+        geocentric = sat.at(t)
+        sp = wgs84.subpoint(geocentric)
+        track.append(
+            {
+                "time": t.utc_datetime().isoformat(),
+                "lat": sp.latitude.degrees,
+                "lon": sp.longitude.degrees,
+                "alt_km": sp.elevation.km,
+            },
+        )
+
+    return track
+
+
 def initialize_satellites(
     parquet_path: str | Path = DEFAULT_PARQUET_PATH,
 ) -> Dict[str, EarthSatellite]:
