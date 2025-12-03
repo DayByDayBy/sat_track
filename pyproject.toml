@@ -10,4 +10,5 @@ dependencies = [
     "polars>=1.35.2",
     "skyfield>=1.53",
     "uvicorn[standard]>=0.38.0",
+    "websockets>=14.2",
 ]

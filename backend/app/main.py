@@ -1,10 +1,10 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 
 from . import orbits, scheduler, state
-from .routes import satellites, passes, groundtrack
+from .routes import satellites, passes, groundtrack, ws
 
 
 LOGGER = logging.getLogger(__name__)
@@ -32,6 +32,11 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(satellites.router)
 app.include_router(passes.router)
 app.include_router(groundtrack.router)
+
+
+@app.websocket("/ws/satellites")
+async def websocket_satellites(websocket: WebSocket) -> None:
+    await ws.ws_satellites(websocket)
 
 
 @app.get("/health")
