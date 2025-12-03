@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from . import orbits
+from . import orbits, scheduler, state
 
 
 LOGGER = logging.getLogger(__name__)
@@ -16,7 +16,14 @@ async def lifespan(app: FastAPI):
         LOGGER.warning(
             "No satellites loaded at startup; run the TLE pipeline to generate Parquet data.",
         )
-    yield
+    else:
+        await state.set_positions(orbits.compute_all_subpoints())
+
+    scheduler.start_scheduler()
+    try:
+        yield
+    finally:
+        scheduler.stop_scheduler()
 
 
 app = FastAPI(lifespan=lifespan)

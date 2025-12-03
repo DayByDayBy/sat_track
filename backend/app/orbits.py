@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Dict
 
 import polars as pl
-from skyfield.api import EarthSatellite, load
+from skyfield.api import EarthSatellite, load, wgs84
 
 from .tle_pipeline import DEFAULT_PARQUET_PATH
 
@@ -45,6 +45,35 @@ def load_satellites_from_parquet(
 
     LOGGER.info("Loaded %d satellites from %s", len(satellites), path)
     return satellites
+
+
+def subpoint_for_satellite(sat: EarthSatellite, t) -> dict[str, float]:
+    """Compute latitude, longitude, and altitude for a single satellite at time *t*.
+
+    Returns a dict with keys: ``lat``, ``lon``, ``alt_km``.
+    """
+    geocentric = sat.at(t)
+    sp = wgs84.subpoint(geocentric)
+    return {
+        "lat": sp.latitude.degrees,
+        "lon": sp.longitude.degrees,
+        "alt_km": sp.elevation.km,
+    }
+
+
+def compute_all_subpoints(t=None) -> Dict[str, dict[str, float]]:
+    """Compute subpoints for all satellites at time *t* (or now if omitted)."""
+    if t is None:
+        t = TS.now()
+
+    results: Dict[str, dict[str, float]] = {}
+    for name, sat in SATELLITES.items():
+        try:
+            results[name] = subpoint_for_satellite(sat, t)
+        except Exception:
+            LOGGER.exception("Failed to compute subpoint for %s", name)
+
+    return results
 
 
 def initialize_satellites(
