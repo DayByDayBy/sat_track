@@ -55,6 +55,7 @@ export default function ObserverControls({
   const [error, setError] = useState<string | null>(null)
   const [hours, setHours] = useState(12)
   const [minElevation, setMinElevation] = useState(10)
+  const [showAdvanced, setShowAdvanced] = useState(false)
   const [search, setSearch] = useState('')
 
   const satOptions = useMemo(() => Object.keys(satellites).sort(), [satellites])
@@ -129,37 +130,53 @@ export default function ObserverControls({
 
   const baseStyle: CSSProperties = {
     width: '280px',
-    padding: '1rem',
+    padding: '0.5rem 0.75rem',
     borderLeft: '1px solid #ddd',
     background: '#fff',
   }
 
   return (
     <div style={{ ...baseStyle, ...style }}>
-      <h2>Observer Controls</h2>
-      <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-        Satellite
-        <input
-          type="text"
-          placeholder="Search by name…"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          style={{ width: '100%', marginTop: '0.25rem', marginBottom: '0.25rem' }}
-        />
-        <select
-          value={selectedSatId || ''}
-          onChange={e => onSelectSatellite(e.target.value)}
-          size={8}
-          style={{ width: '100%' }}
-        >
-          {filteredSatOptions.map(name => (
-            <option key={name} value={name}>
-              {name}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 0 }}>
+          <span style={{ fontWeight: 500 }}>Satellite</span>
+          <select
+            value={selectedSatId || ''}
+            onChange={e => onSelectSatellite(e.target.value)}
+            style={{ minWidth: '200px' }}
+          >
+            <option value="" disabled>
+              Choose a satellite
             </option>
-          ))}
-        </select>
-      </label>
-      <label style={{ display: 'block', marginBottom: '0.5rem' }}>
+            {filteredSatOptions.map(name => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          type="button"
+          onClick={() => setShowAdvanced(prev => !prev)}
+          style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
+        >
+          {showAdvanced ? 'Hide details' : 'Details'}
+        </button>
+      </div>
+
+      {showAdvanced && (
+        <>
+          <div style={{ marginTop: '0.5rem' }}>
+            <input
+              type="text"
+              placeholder="Filter satellites…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{ width: '100%', marginBottom: '0.5rem' }}
+            />
+          </div>
+
+          <label style={{ display: 'block', marginBottom: '0.5rem' }}>
         Observer Latitude
         <input
           type="number"
@@ -168,7 +185,7 @@ export default function ObserverControls({
           style={{ width: '100%', marginTop: '0.25rem' }}
         />
       </label>
-      <label style={{ display: 'block', marginBottom: '0.5rem' }}>
+          <label style={{ display: 'block', marginBottom: '0.5rem' }}>
         Observer Longitude
         <input
           type="number"
@@ -177,7 +194,7 @@ export default function ObserverControls({
           style={{ width: '100%', marginTop: '0.25rem' }}
         />
       </label>
-      <label style={{ display: 'block', marginBottom: '0.5rem' }}>
+          <label style={{ display: 'block', marginBottom: '0.5rem' }}>
         Prediction Window (hours)
         <input
           type="number"
@@ -188,7 +205,7 @@ export default function ObserverControls({
           style={{ width: '100%', marginTop: '0.25rem' }}
         />
       </label>
-      <label style={{ display: 'block', marginBottom: '0.5rem' }}>
+          <label style={{ display: 'block', marginBottom: '0.5rem' }}>
         Min Elevation (deg)
         <input
           type="number"
@@ -199,42 +216,44 @@ export default function ObserverControls({
           style={{ width: '100%', marginTop: '0.25rem' }}
         />
       </label>
-      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-        <button onClick={fetchPasses} disabled={loading}>
-          Fetch Passes
-        </button>
-        <button onClick={fetchGroundTrack} disabled={loading}>
-          Ground Track
-        </button>
-      </div>
-      {error && (
-        <div style={{ color: 'red', marginTop: '0.5rem' }}>{error}</div>
-      )}
-      {passes && (
-        <div style={{ marginTop: '1rem' }}>
-          <h3>Upcoming Passes</h3>
-          {passes.length === 0 ? (
-            <p>No passes in window.</p>
-          ) : (
-            <>
-              <PassPlot passes={passes} />
-              <ul>
-                {passes.map((p, idx) => (
-                  <li key={idx}>
-                    Rise: {new Date(p.start).toLocaleString()} | Peak: {new Date(p.peak).toLocaleString()} |
-                    Set: {new Date(p.end).toLocaleString()} | Max elev: {p.max_elevation_deg.toFixed(1)}°
-                  </li>
-                ))}
-              </ul>
-            </>
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+            <button onClick={fetchPasses} disabled={loading}>
+              Fetch Passes
+            </button>
+            <button onClick={fetchGroundTrack} disabled={loading}>
+              Ground Track
+            </button>
+          </div>
+          {error && (
+            <div style={{ color: 'red', marginTop: '0.5rem' }}>{error}</div>
           )}
-        </div>
-      )}
-      {groundTrack && (
-        <div style={{ marginTop: '1rem' }}>
-          <h3>Ground Track Points</h3>
-          <p>{groundTrack.length} samples</p>
-        </div>
+          {passes && (
+            <div style={{ marginTop: '1rem' }}>
+              <h3>Upcoming Passes</h3>
+              {passes.length === 0 ? (
+                <p>No passes in window.</p>
+              ) : (
+                <>
+                  <PassPlot passes={passes} />
+                  <ul>
+                    {passes.map((p, idx) => (
+                      <li key={idx}>
+                        Rise: {new Date(p.start).toLocaleString()} | Peak: {new Date(p.peak).toLocaleString()} |
+                        Set: {new Date(p.end).toLocaleString()} | Max elev: {p.max_elevation_deg.toFixed(1)}°
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
+          )}
+          {groundTrack && (
+            <div style={{ marginTop: '1rem' }}>
+              <h3>Ground Track Points</h3>
+              <p>{groundTrack.length} samples</p>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
