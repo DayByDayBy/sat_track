@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 
 import type { SatellitePositions } from './GlobeView'
 import PassPlot from './PassPlot'
@@ -34,6 +34,7 @@ interface ObserverControlsProps {
   onSelectSatellite: (satId: string) => void
   onPassesLoaded?: (passes: PassEvent[]) => void
   onGroundTrackLoaded?: (points: GroundTrackPoint[]) => void
+  style?: CSSProperties
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
@@ -44,6 +45,7 @@ export default function ObserverControls({
   onSelectSatellite,
   onPassesLoaded,
   onGroundTrackLoaded,
+  style,
 }: ObserverControlsProps) {
   const [observerLat, setObserverLat] = useState(0)
   const [observerLon, setObserverLon] = useState(0)
@@ -125,8 +127,15 @@ export default function ObserverControls({
     }
   }
 
+  const baseStyle: CSSProperties = {
+    width: '280px',
+    padding: '1rem',
+    borderLeft: '1px solid #ddd',
+    background: '#fff',
+  }
+
   return (
-    <div style={{ width: '360px', padding: '1rem', borderLeft: '1px solid #ddd', background: '#fff' }}>
+    <div style={{ ...baseStyle, ...style }}>
       <h2>Observer Controls</h2>
       <label style={{ display: 'block', marginBottom: '0.5rem' }}>
         Satellite

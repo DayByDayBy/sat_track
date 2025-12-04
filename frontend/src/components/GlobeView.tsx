@@ -65,8 +65,14 @@ export default function GlobeView({ satellites, selectedSatId, onSatelliteClick,
       navigationHelpButton: false,
       infoBox: false,
       selectionIndicator: false,
+      fullscreenButton: false,
     })
     viewerInstanceRef.current = viewer
+
+    viewer.scene.globe.enableLighting = true
+    viewer.camera.setView({
+      destination: Cesium.Cartesian3.fromDegrees(0, 0, 10_000_000),
+    })
 
     // create billboard collection for satellites
     const billboards = viewer.scene.primitives.add(
@@ -124,8 +130,8 @@ export default function GlobeView({ satellites, selectedSatId, onSatelliteClick,
       const billboard = billboards.add({
         image,
         position: cartesian,
-        width: selectedSatId === name ? 16 : 12,
-        height: selectedSatId === name ? 16 : 12,
+        width: selectedSatId === name ? 10 : 6,
+        height: selectedSatId === name ? 10 : 6,
       })
 
       // store the satId on the billboard for click handling
@@ -175,5 +181,5 @@ export default function GlobeView({ satellites, selectedSatId, onSatelliteClick,
     })
   }, [groundTrack])
 
-  return <div ref={viewerRef} style={{ width: '100%', height: '100%' }} />
+  return <div ref={viewerRef} style={{ position: 'absolute', inset: 0 }} />
 }
