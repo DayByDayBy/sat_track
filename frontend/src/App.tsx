@@ -21,7 +21,7 @@ function App() {
         onSelectSatellite={setSelectedSatId}
         onGroundTrackLoaded={setGroundTrack}
         style={{
-          width: '101%',
+          width: '100%',
           borderLeft: 'none',
           borderBottom: '1px solid #ddd',
         }}

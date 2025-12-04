@@ -137,13 +137,26 @@ export default function ObserverControls({
 
   return (
     <div style={{ ...baseStyle, ...style }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 0 }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+        }}
+      >
+        <label
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            marginBottom: 0,
+          }}
+        >
           <span style={{ fontWeight: 500 }}>Satellite</span>
           <select
             value={selectedSatId || ''}
             onChange={e => onSelectSatellite(e.target.value)}
-            style={{ minWidth: '200px' }}
+            style={{ minWidth: '200px', flexShrink: 0 }}
           >
             <option value="" disabled>
               Choose a satellite
@@ -158,7 +171,7 @@ export default function ObserverControls({
         <button
           type="button"
           onClick={() => setShowAdvanced(prev => !prev)}
-          style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
+          style={{ padding: '0.25rem 0.75rem', fontSize: '0.8rem' }}
         >
           {showAdvanced ? 'Hide details' : 'Details'}
         </button>
