@@ -47,6 +47,7 @@ function App() {
             satellites={satellites}
             selectedSatId={selectedSatId}
             onSatelliteClick={setSelectedSatId}
+            groundTrack={groundTrack ?? undefined}
           />
         </div>
         <ObserverControls

@@ -23,18 +23,27 @@ export interface SatellitePositions {
   }
 }
 
+interface GroundTrackPoint {
+  time: string
+  lat: number
+  lon: number
+  alt_km: number
+}
+
 interface GlobeViewProps {
   satellites: SatellitePositions
   selectedSatId?: string
   onSatelliteClick?: (satId: string) => void
+  groundTrack?: GroundTrackPoint[] | null
 }
 
-export default function GlobeView({ satellites, selectedSatId, onSatelliteClick }: GlobeViewProps) {
+export default function GlobeView({ satellites, selectedSatId, onSatelliteClick, groundTrack }: GlobeViewProps) {
   const viewerRef = useRef<HTMLDivElement>(null)
   const viewerInstanceRef = useRef<Cesium.Viewer | null>(null)
   const billboardsRef = useRef<Cesium.BillboardCollection | null>(null)
   const imageUnselectedRef = useRef<string | null>(null)
   const imageSelectedRef = useRef<string | null>(null)
+  const groundTrackRef = useRef<Cesium.PolylineCollection | null>(null)
 
   useEffect(() => {
     if (!viewerRef.current) return
@@ -59,6 +68,10 @@ export default function GlobeView({ satellites, selectedSatId, onSatelliteClick 
       })
     )
     billboardsRef.current = billboards
+
+    // create polyline collection for ground track
+    const polylines = viewer.scene.primitives.add(new Cesium.PolylineCollection())
+    groundTrackRef.current = polylines
 
     // precompute point images (unselected = gold, selected = red)
     const baseCanvas = document.createElement('canvas')
@@ -133,6 +146,27 @@ export default function GlobeView({ satellites, selectedSatId, onSatelliteClick 
       handler.destroy()
     }
   }, [onSatelliteClick])
+
+  // render ground track polyline
+  useEffect(() => {
+    const polylines = groundTrackRef.current
+    if (!polylines) return
+
+    polylines.removeAll()
+
+    if (!groundTrack || groundTrack.length === 0) return
+
+    const coords: number[] = []
+    for (const p of groundTrack) {
+      coords.push(p.lon, p.lat, p.alt_km * 1000)
+    }
+
+    polylines.add({
+      positions: Cesium.Cartesian3.fromDegreesArrayHeights(coords),
+      width: 2,
+      material: Cesium.Color.CYAN,
+    })
+  }, [groundTrack])
 
   return <div ref={viewerRef} style={{ width: '100%', height: '100%' }} />
 }

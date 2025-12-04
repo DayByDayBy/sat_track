@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import type { SatellitePositions } from './GlobeView'
+import PassPlot from './PassPlot'
 
 export interface PassEvent {
   start: string
@@ -190,14 +191,17 @@ export default function ObserverControls({
           {passes.length === 0 ? (
             <p>No passes in window.</p>
           ) : (
-            <ul>
-              {passes.map((p, idx) => (
-                <li key={idx}>
-                  Rise: {new Date(p.start).toLocaleString()} | Peak: {new Date(p.peak).toLocaleString()} |
-                  Set: {new Date(p.end).toLocaleString()} | Max elev: {p.max_elevation_deg.toFixed(1)}°
-                </li>
-              ))}
-            </ul>
+            <>
+              <PassPlot passes={passes} />
+              <ul>
+                {passes.map((p, idx) => (
+                  <li key={idx}>
+                    Rise: {new Date(p.start).toLocaleString()} | Peak: {new Date(p.peak).toLocaleString()} |
+                    Set: {new Date(p.end).toLocaleString()} | Max elev: {p.max_elevation_deg.toFixed(1)}°
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
         </div>
       )}
