@@ -8,3 +8,9 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Frontend
+frontend/node_modules
+frontend/.cache
+frontend/.next
+frontend/.vscode

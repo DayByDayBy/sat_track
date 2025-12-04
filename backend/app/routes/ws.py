@@ -27,7 +27,8 @@ async def ws_satellites(websocket: WebSocket, interval_seconds: float = DEFAULT_
 
             # Truncate to avoid exceeding WebSocket message size limits.
             # Keep a deterministic subset (first N by name) for consistency.
-            truncated = dict(list(positions.items())[: WS_MAX_SATELLITES])
+            items = sorted(positions.items(), key=lambda kv: kv[0])
+            truncated = dict(items[:WS_MAX_SATELLITES])
             payload = {
                 "last_updated": ts,
                 "satellites": truncated,
