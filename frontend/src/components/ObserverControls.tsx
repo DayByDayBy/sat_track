@@ -53,8 +53,16 @@ export default function ObserverControls({
   const [error, setError] = useState<string | null>(null)
   const [hours, setHours] = useState(12)
   const [minElevation, setMinElevation] = useState(10)
+  const [search, setSearch] = useState('')
 
   const satOptions = useMemo(() => Object.keys(satellites).sort(), [satellites])
+  const filteredSatOptions = useMemo(
+    () =>
+      satOptions.filter(name =>
+        name.toLowerCase().includes(search.toLowerCase()),
+      ),
+    [satOptions, search],
+  )
 
   useEffect(() => {
     if (!selectedSatId && satOptions.length > 0) {
@@ -122,12 +130,20 @@ export default function ObserverControls({
       <h2>Observer Controls</h2>
       <label style={{ display: 'block', marginBottom: '0.5rem' }}>
         Satellite
+        <input
+          type="text"
+          placeholder="Search by name…"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          style={{ width: '100%', marginTop: '0.25rem', marginBottom: '0.25rem' }}
+        />
         <select
           value={selectedSatId || ''}
           onChange={e => onSelectSatellite(e.target.value)}
-          style={{ width: '100%', marginTop: '0.25rem' }}
+          size={8}
+          style={{ width: '100%' }}
         >
-          {satOptions.map(name => (
+          {filteredSatOptions.map(name => (
             <option key={name} value={name}>
               {name}
             </option>
