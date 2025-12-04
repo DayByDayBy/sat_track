@@ -10,7 +10,7 @@ declare global {
   }
 }
 
-// Set Cesium base URL at runtime using the global constant if available.
+// set Cesium base URL at runtime using the global constant if available.
 if (typeof window !== 'undefined' && typeof CESIUM_BASE_URL !== 'undefined') {
   window.CESIUM_BASE_URL = CESIUM_BASE_URL
 }
@@ -113,7 +113,7 @@ export default function GlobeView({ satellites, selectedSatId, onSatelliteClick 
     })
   }, [satellites, selectedSatId])
 
-  // Handle clicks on satellites
+  // handle clicks on satellites
   useEffect(() => {
     const viewer = viewerInstanceRef.current
     if (!viewer || !onSatelliteClick) return
