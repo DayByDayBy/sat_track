@@ -11,4 +11,5 @@ dependencies = [
     "skyfield>=1.53",
     "uvicorn[standard]>=0.38.0",
     "websockets>=14.2",
+    "pydantic-settings>=2.7.0",
 ]

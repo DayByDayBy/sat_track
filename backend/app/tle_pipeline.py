@@ -3,20 +3,18 @@ from __future__ import annotations
 import argparse
 import logging
 import urllib.request
-from pathlib import Path
 from typing import List, Dict, Tuple
 
 import polars as pl
 from skyfield.api import EarthSatellite, load
 
+from .config import settings
 
 LOGGER = logging.getLogger(__name__)
 TS = load.timescale()
 
-DEFAULT_TLE_URL = (
-    "https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=raw"
-)
-DEFAULT_PARQUET_PATH = Path("data/tles.parquet")
+DEFAULT_TLE_URL = settings.tle_url
+DEFAULT_PARQUET_PATH = settings.parquet_path
 
 
 def fetch_and_parse_raw_tles(url: str) -> Tuple[List[EarthSatellite], List[Dict[str, str]]]:

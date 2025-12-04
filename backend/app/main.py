@@ -1,11 +1,11 @@
 import logging
-import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import orbits, scheduler, state
+from .config import settings
 from .routes import satellites, passes, groundtrack, ws
 
 
@@ -31,18 +31,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-cors_origins_raw = os.getenv("BACKEND_CORS_ORIGINS")
-if cors_origins_raw:
-    origins = [origin.strip() for origin in cors_origins_raw.split(",") if origin.strip()]
-else:
-    origins = [
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

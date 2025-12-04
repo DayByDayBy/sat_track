@@ -7,10 +7,11 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
 from . import orbits, state
+from .config import settings
 
 
 LOGGER = logging.getLogger(__name__)
-DEFAULT_INTERVAL_SECONDS = 5.0
+DEFAULT_INTERVAL_SECONDS = settings.scheduler_interval_seconds
 
 _scheduler: Optional[AsyncIOScheduler] = None
 

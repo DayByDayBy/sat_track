@@ -6,13 +6,14 @@ import logging
 from fastapi import WebSocket, WebSocketDisconnect
 
 from .. import state
+from ..config import settings
 
 
 LOGGER = logging.getLogger(__name__)
-DEFAULT_WS_INTERVAL_SECONDS = 5.0
+DEFAULT_WS_INTERVAL_SECONDS = settings.ws_interval_seconds
 # Limit WebSocket payload size to avoid “message too big” errors.
 # We stream a subset; full data is still available via /api/satellites.
-WS_MAX_SATELLITES = 500
+WS_MAX_SATELLITES = settings.ws_max_sats
 
 
 async def ws_satellites(websocket: WebSocket, interval_seconds: float = DEFAULT_WS_INTERVAL_SECONDS) -> None:

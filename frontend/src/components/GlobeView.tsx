@@ -10,9 +10,16 @@ declare global {
   }
 }
 
-// set Cesium base URL at runtime using the global constant if available.
-if (typeof window !== 'undefined' && typeof CESIUM_BASE_URL !== 'undefined') {
-  window.CESIUM_BASE_URL = CESIUM_BASE_URL
+// Set Cesium base URL and Ion access token at runtime.
+if (typeof window !== 'undefined') {
+  if (typeof CESIUM_BASE_URL !== 'undefined') {
+    window.CESIUM_BASE_URL = CESIUM_BASE_URL
+  }
+
+  const ionToken = import.meta.env.VITE_CESIUM_ION_TOKEN as string | undefined
+  if (ionToken) {
+    Cesium.Ion.defaultAccessToken = ionToken
+  }
 }
 
 export interface SatellitePositions {
